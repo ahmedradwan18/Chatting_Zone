@@ -1,0 +1,40 @@
+{
+  "project_info": {
+    "project_number": "1061304953161",
+    "firebase_url": "https://chatting-zone-8bac5.firebaseio.com",
+    "project_id": "chatting-zone-8bac5",
+    "storage_bucket": "chatting-zone-8bac5.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:1061304953161:android:1d44f784649bd1b3151298",
+        "android_client_info": {
+          "package_name": "com.example.chattingzone"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "1061304953161-ogf9tva57hkruj8c0hgjfvql5hs46hob.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyB6tNczO9rPl2ulvNATCXwY6pMfPgrIlgE"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "1061304953161-ogf9tva57hkruj8c0hgjfvql5hs46hob.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

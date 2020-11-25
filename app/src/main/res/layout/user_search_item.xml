@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content">
+
+
+    <de.hdodenhof.circleimageview.CircleImageView
+        android:id="@+id/profile_image_item"
+        android:layout_width="@dimen/_60sdp"
+        android:layout_height="@dimen/_60sdp"
+        android:layout_margin="@dimen/_6sdp"
+        android:src="@drawable/profile_imge" />
+
+    <TextView
+        android:id="@+id/username_item"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_centerInParent="true"
+        android:layout_marginLeft="@dimen/_12sdp"
+        android:layout_toRightOf="@+id/profile_image_item"
+        android:text="username"
+        android:textColor="@color/colorPrimaryDark"
+        android:textSize="@dimen/_19ssp"
+        android:textStyle="bold" />
+
+    <de.hdodenhof.circleimageview.CircleImageView
+        android:id="@+id/image_online_item"
+        android:layout_width="@dimen/_17sdp"
+        android:layout_height="@dimen/_17sdp"
+        android:layout_below="@+id/username_item"
+        android:layout_marginStart="-16dp"
+        android:layout_marginTop="@dimen/_16sdp"
+        android:layout_toEndOf="@+id/profile_image_item"
+        android:src="@drawable/ic_profile"
+        app:civ_border_color="#05df29"
+        android:visibility="gone"
+        app:civ_border_width="@dimen/_12sdp" />
+
+    <de.hdodenhof.circleimageview.CircleImageView
+        android:id="@+id/image_offline_item"
+        android:layout_width="@dimen/_17sdp"
+        android:layout_height="@dimen/_17sdp"
+        android:layout_below="@+id/username_item"
+        android:layout_marginStart="-16dp"
+        android:layout_marginTop="@dimen/_16sdp"
+        android:layout_toEndOf="@+id/profile_image_item"
+        android:src="@drawable/ic_profile"
+        app:civ_border_color="#bfbfbf"
+        android:visibility="gone"
+        app:civ_border_width="@dimen/_12sdp" />
+
+    <TextView
+        android:id="@+id/last_message_item"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+       android:layout_marginTop="@dimen/_14sdp"
+        android:layout_marginStart="@dimen/_20sdp"
+        android:layout_toEndOf="@+id/profile_image_item"
+        android:textColor="@color/colorPrimaryDark"
+        android:textSize="@dimen/_19ssp"
+        android:padding="@dimen/_6sdp"
+        android:maxLines="1"
+        android:layout_below="@+id/username_item"
+        android:textStyle="bold" />
+</RelativeLayout>
