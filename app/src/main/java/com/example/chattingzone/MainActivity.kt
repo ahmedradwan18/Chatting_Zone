@@ -4,6 +4,7 @@ import android.content.Intent
 import android.os.Bundle
 import android.view.Menu
 import android.view.MenuItem
+import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.Toolbar
 import androidx.fragment.app.Fragment
@@ -24,7 +25,10 @@ import kotlinx.android.synthetic.main.activity_main.*
 
 class MainActivity : AppCompatActivity() {
     var refUsers: DatabaseReference? = null
+    var ref: DatabaseReference? = null
     var currentUser: FirebaseUser? = null
+
+    var countUnreadMessages = 0
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
@@ -36,36 +40,65 @@ class MainActivity : AppCompatActivity() {
 
         val tabLayout: TabLayout = findViewById(R.id.tabLayout)
         val viewPager: ViewPager = findViewById(R.id.view_pager)
-
+        val viewPagerAdapter = viewPagerAdapter(supportFragmentManager)
 
         currentUser = FirebaseAuth.getInstance().currentUser
+
         refUsers = FirebaseDatabase.getInstance().reference.child("Users")
             .child(currentUser!!.uid)
-        val ref = FirebaseDatabase.getInstance().reference.child("Chats")
-        ref.addValueEventListener(object :ValueEventListener{
+
+        ref = FirebaseDatabase.getInstance().reference.child("Chats")
+
+        ref!!.addValueEventListener(object : ValueEventListener {
 
             override fun onDataChange(snapshot: DataSnapshot) {
-                val viewPagerAdapter = viewPagerAdapter(supportFragmentManager)
-                var countUnreadMessages=0
-                for (ds in snapshot.children ){
-                    val chat=ds.getValue(Chat::class.java)
 
-                    if (chat!!.receiver==currentUser!!.uid && !chat.isSeen){
-                        countUnreadMessages++
+                if (snapshot.exists()) {
+                    val viewPagerAdapter = viewPagerAdapter(supportFragmentManager)
+
+
+                    for (ds in snapshot.children) {
+                        val chat = ds.getValue(Chat::class.java)
+
+                        if (chat!!.receiver == currentUser!!.uid && !chat.isSeen) {
+                            countUnreadMessages += 1
+                        }
+                    }
+
+
+
+                    if (countUnreadMessages == 0) {
+
+                        viewPagerAdapter.addFragment(ChatsFragment(), "Chats")
+                        viewPagerAdapter.addFragment(SearchFragment(), "Search")
+                        viewPagerAdapter.addFragment(SettingsFragment(), "Settings")
+
+                        viewPager.adapter = viewPagerAdapter
+                        tabLayout.setupWithViewPager(viewPager)
+                        Toast.makeText(this@MainActivity, "1", Toast.LENGTH_SHORT).show()
+                    } else {
+                        viewPagerAdapter.addFragment(
+                            ChatsFragment(),
+                            "($countUnreadMessages) Chats"
+                        )
+                        viewPagerAdapter.addFragment(SearchFragment(), "Search")
+                        viewPagerAdapter.addFragment(SettingsFragment(), "Settings")
+
+                        viewPager.adapter = viewPagerAdapter
+                        tabLayout.setupWithViewPager(viewPager)
 
                     }
-                }
-                if (countUnreadMessages==0){
+
+                } else {
                     viewPagerAdapter.addFragment(ChatsFragment(), "Chats")
-                }
-                else{
-                    viewPagerAdapter.addFragment(ChatsFragment(), "($countUnreadMessages) Chats")
                     viewPagerAdapter.addFragment(SearchFragment(), "Search")
                     viewPagerAdapter.addFragment(SettingsFragment(), "Settings")
 
                     viewPager.adapter = viewPagerAdapter
                     tabLayout.setupWithViewPager(viewPager)
+
                 }
+
 
             }
 
@@ -74,8 +107,6 @@ class MainActivity : AppCompatActivity() {
 
             }
         })
-
-
 
 
         // display username and image
@@ -87,8 +118,9 @@ class MainActivity : AppCompatActivity() {
             override fun onDataChange(snapshot: DataSnapshot) {
                 if (snapshot.exists()) {
                     val user: Users? = snapshot.getValue(Users::class.java)
-                    username.text=user!!.username
-                    Picasso.get().load(user.profile).placeholder(R.drawable.profile_imge).into(profile_image)
+                    username.text = user!!.username
+                    Picasso.get().load(user.profile).placeholder(R.drawable.profile_imge)
+                        .into(profile_image)
                 }
 
             }

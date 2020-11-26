@@ -1,3 +1,3 @@
 package com.example.chattingzone.Models
 
-class ChatList (var id:String="")
+data class ChatList (var ID:String="")

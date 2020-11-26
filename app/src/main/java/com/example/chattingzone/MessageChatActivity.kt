@@ -10,8 +10,10 @@ import androidx.appcompat.widget.Toolbar
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.example.chattingzone.Adapters.ChatsAdapter
+import com.example.chattingzone.Fragments.ApiService
 import com.example.chattingzone.Models.Chat
 import com.example.chattingzone.Models.Users
+import com.example.chattingzone.Notifications.*
 import com.google.android.gms.tasks.Continuation
 import com.google.android.gms.tasks.Task
 import com.google.firebase.auth.FirebaseAuth
@@ -22,6 +24,9 @@ import com.google.firebase.storage.StorageTask
 import com.google.firebase.storage.UploadTask
 import com.squareup.picasso.Picasso
 import kotlinx.android.synthetic.main.activity_message_chat.*
+import retrofit2.Call
+import retrofit2.Callback
+import retrofit2.Response
 
 class MessageChatActivity : AppCompatActivity() {
     var userIdVisit: String = ""
@@ -30,6 +35,8 @@ class MessageChatActivity : AppCompatActivity() {
     var chatList: List<Chat>? = null
     var reference: DatabaseReference? = null
     lateinit var recyclerView: RecyclerView
+    var notify = false
+    var apiService: ApiService? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -46,6 +53,8 @@ class MessageChatActivity : AppCompatActivity() {
             finish()
         }
 
+        apiService =
+            Client.client.getClient("https://fcm.googleapis.com/")!!.create(ApiService::class.java)
 
 
 
@@ -80,6 +89,7 @@ class MessageChatActivity : AppCompatActivity() {
         })
 
         attach_image_Message_Chat.setOnClickListener {
+            notify = true
             val intent = Intent()
             intent.action = Intent.ACTION_GET_CONTENT
             intent.type = "image/*"
@@ -87,6 +97,7 @@ class MessageChatActivity : AppCompatActivity() {
 
         }
         sendMessage_Message_Chat.setOnClickListener {
+            notify = true
             val message = text_message_Message_Chat.text.toString()
             if (message == "") {
                 Toast.makeText(
@@ -142,15 +153,80 @@ class MessageChatActivity : AppCompatActivity() {
 
                     })
 
-                    // implement the push notification FCM later
-
-
-                    val reference = FirebaseDatabase.getInstance().reference.child("Users")
-                        .child(firebaseUser!!.uid)
 
                 }
             }
 
+// notification fcm
+        val UserReference = FirebaseDatabase.getInstance().reference.child("Users")
+            .child(firebaseUser!!.uid)
+        UserReference.addValueEventListener(object : ValueEventListener {
+
+            override fun onDataChange(snapshot: DataSnapshot) {
+                val user = snapshot.getValue(Users::class.java)
+                if (notify) {
+                    sendNotification(receiverId, user!!.username, message)
+                }
+                notify = false
+
+            }
+
+            override fun onCancelled(error: DatabaseError) {
+
+
+            }
+        })
+
+    }
+
+    private fun sendNotification(receiverId: String?, username: String, message: String) {
+        val ref = FirebaseDatabase.getInstance().reference.child("Tokens")
+        val query = ref.orderByKey().equalTo(receiverId)
+        query.addValueEventListener(object : ValueEventListener {
+            override fun onDataChange(snapshot: DataSnapshot) {
+                for (ds in snapshot.children) {
+                    val token: Token? = ds.getValue(Token::class.java)
+                    val data = Data(
+                        firebaseUser!!.uid,
+                        R.mipmap.ic_launcher,
+                        "$username: $message",
+                        "New Message",
+                        userIdVisit
+                    )
+                    val sender = Sender(data, token!!.token)
+                    apiService!!.sendNotification(sender)
+                        .enqueue(object : Callback<MyResponse> {
+
+                            override fun onResponse(
+                                call: Call<MyResponse>,
+                                response: Response<MyResponse>
+                            ) {
+                                if (response.code() == 200) {
+                                    if (response.body()!!.success !== 1) {
+                                        Toast.makeText(
+                                            this@MessageChatActivity,
+                                            "Failed..Nothing happen.",
+                                            Toast.LENGTH_SHORT
+                                        ).show()
+                                    }
+                                }
+
+                            }
+
+                            override fun onFailure(call: Call<MyResponse>, t: Throwable) {
+
+
+                            }
+                        })
+                }
+
+            }
+
+            override fun onCancelled(error: DatabaseError) {
+
+
+            }
+        })
 
     }
 
@@ -196,7 +272,38 @@ class MessageChatActivity : AppCompatActivity() {
 
 
                     ref.child("Chats").child(messageId!!).setValue(messageMap)
-                    loadingBar.dismiss()
+                        .addOnCompleteListener { task ->
+                            if (task.isSuccessful) {
+                                loadingBar.dismiss()
+
+
+                                val reference =
+                                    FirebaseDatabase.getInstance().reference.child("Users")
+                                        .child(firebaseUser!!.uid)
+                                reference.addValueEventListener(object : ValueEventListener {
+
+                                    override fun onDataChange(snapshot: DataSnapshot) {
+                                        val user = snapshot.getValue(Users::class.java)
+                                        if (notify) {
+                                            sendNotification(
+                                                userIdVisit,
+                                                user!!.username,
+                                                "sent you an image."
+                                            )
+                                        }
+                                        notify = false
+
+                                    }
+
+                                    override fun onCancelled(error: DatabaseError) {
+
+
+                                    }
+                                })
+
+
+                            }
+                        }
                 }
             }
 
@@ -244,6 +351,7 @@ class MessageChatActivity : AppCompatActivity() {
 
     var seenListener: ValueEventListener? = null
 
+
     private fun seenMessage(userId: String) {
 
         val reference = FirebaseDatabase.getInstance().reference.child("Chats")
@@ -256,7 +364,7 @@ class MessageChatActivity : AppCompatActivity() {
                     val chat = ds.getValue(Chat::class.java)
 
                     if (chat!!.receiver == firebaseUser!!.uid &&
-                        chat!!.sender == userId
+                        chat.sender == userId
                     ) {
 
                         val hashMap = HashMap<String, Any>()

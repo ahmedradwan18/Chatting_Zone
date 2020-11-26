@@ -69,13 +69,6 @@ class UserAdapter(
 
 
 
-
-
-
-
-
-
-
         if (user.profile.isEmpty()) {
             holder.profileImage.setImageResource(R.drawable.profile_imge);
         } else {
