@@ -10,7 +10,6 @@ import androidx.appcompat.widget.Toolbar
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.example.chattingzone.Adapters.ChatsAdapter
-import com.example.chattingzone.Fragments.ApiService
 import com.example.chattingzone.Models.Chat
 import com.example.chattingzone.Models.Users
 import com.example.chattingzone.Notifications.*
@@ -37,19 +36,18 @@ class MessageChatActivity : AppCompatActivity() {
     lateinit var recyclerView: RecyclerView
     var notify = false
     var apiService: ApiService? = null
+    var progressBar: ProgressDialog? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_message_chat)
+        progressBar = ProgressDialog(this)
 
         val toolbar: Toolbar = findViewById(R.id.toolbar_Message_Chat)
         setSupportActionBar(toolbar)
         supportActionBar!!.title = ""
         supportActionBar!!.setDisplayHomeAsUpEnabled(true)
         toolbar.setNavigationOnClickListener {
-            val intent = Intent(this, welcomeActivity::class.java)
-            intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK or Intent.FLAG_ACTIVITY_NEW_TASK)
-            startActivity(intent)
             finish()
         }
 

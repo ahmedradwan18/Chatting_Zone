@@ -1,4 +1,4 @@
-package com.example.chattingzone.Fragments;
+package com.example.chattingzone.Notifications;
 
 import com.example.chattingzone.Notifications.MyResponse;
 import com.example.chattingzone.Notifications.Sender;

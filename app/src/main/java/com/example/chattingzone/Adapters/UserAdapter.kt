@@ -9,10 +9,16 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
-import com.example.chattingzone.MainActivity
 import com.example.chattingzone.MessageChatActivity
+import com.example.chattingzone.Models.Chat
 import com.example.chattingzone.Models.Users
 import com.example.chattingzone.R
+import com.example.chattingzone.VisitUserProfActivity
+import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.database.DataSnapshot
+import com.google.firebase.database.DatabaseError
+import com.google.firebase.database.FirebaseDatabase
+import com.google.firebase.database.ValueEventListener
 import com.squareup.picasso.Picasso
 import de.hdodenhof.circleimageview.CircleImageView
 
@@ -24,6 +30,7 @@ class UserAdapter(
     private val context: Context
     private val users: List<Users>
     private var isChatChecked: Boolean
+    var lastMsg: String = ""
 
     init {
         this.context = context
@@ -45,6 +52,24 @@ class UserAdapter(
         val user: Users = users[position]
         holder.username.text = user.username
 
+        if (isChatChecked) {
+            retreiveLastMessage(user.uid, holder.lastMessage)
+        } else {
+            holder.lastMessage.visibility = View.GONE
+        }
+        if (isChatChecked) {
+            if (user.status == "online") {
+                holder.onlineImage.visibility = View.VISIBLE
+                holder.offlineImage.visibility = View.GONE
+            } else {
+                holder.onlineImage.visibility = View.GONE
+                holder.offlineImage.visibility = View.VISIBLE
+            }
+        } else {
+            holder.onlineImage.visibility = View.GONE
+            holder.offlineImage.visibility = View.VISIBLE
+        }
+
         holder.itemView.setOnClickListener {
 
             val options = arrayOf<CharSequence>(
@@ -56,11 +81,14 @@ class UserAdapter(
             builder.setItems(options, DialogInterface.OnClickListener { dialogInterface, i ->
                 if (i == 0) {
                     val intent = Intent(context, MessageChatActivity::class.java)
-                    intent.putExtra("visit_id",user.uid)
-                    context.startActivity (intent)
+                    intent.putExtra("visit_id", user.uid)
+                    context.startActivity(intent)
 
                 }
                 if (i == 1) {
+                    val intent = Intent(context, VisitUserProfActivity::class.java)
+                    intent.putExtra("visit_id", user.uid)
+                    context.startActivity(intent)
                 }
             })
             builder.show()
@@ -70,11 +98,44 @@ class UserAdapter(
 
 
         if (user.profile.isEmpty()) {
-            holder.profileImage.setImageResource(R.drawable.profile_imge);
+            holder.profileImage.setImageResource(R.drawable.prof);
         } else {
-            Picasso.get().load(user.profile).placeholder(R.drawable.profile_imge)
+            Picasso.get().load(user.profile).placeholder(R.drawable.prof)
                 .into(holder.profileImage)
         }
+
+    }
+
+    private fun retreiveLastMessage(uid: String, lastMessage: TextView) {
+        lastMsg = "defaultMsg"
+        val firebaseUser = FirebaseAuth.getInstance().currentUser
+        val reference = FirebaseDatabase.getInstance().reference.child("Chats")
+        reference.addValueEventListener(object : ValueEventListener {
+            override fun onCancelled(error: DatabaseError) {
+
+
+            }
+
+            override fun onDataChange(snapshot: DataSnapshot) {
+                for (ds in snapshot.children) {
+                    val chat: Chat? = ds.getValue(Chat::class.java)
+                    if (firebaseUser != null && chat != null) {
+                        if (chat.receiver == firebaseUser.uid && chat.sender == uid ||
+                            chat.receiver == uid && chat.sender == firebaseUser.uid
+                        ) {
+                            lastMsg = chat.message
+                        }
+                    }
+                }
+                when (lastMsg){
+                    "defaultMsg" ->lastMessage.text="No Messages"
+                    "sent you an image." ->lastMessage.text="image sent."
+                    else ->lastMessage.text=lastMsg
+                }
+                lastMsg="defaultMsg"
+            }
+        })
+
 
     }
 

@@ -10,7 +10,7 @@
         android:layout_width="@dimen/_60sdp"
         android:layout_height="@dimen/_60sdp"
         android:layout_margin="@dimen/_6sdp"
-        android:src="@drawable/profile_imge" />
+        android:src="@drawable/prof" />
 
     <TextView
         android:id="@+id/username_item"
@@ -29,7 +29,7 @@
         android:layout_width="@dimen/_17sdp"
         android:layout_height="@dimen/_17sdp"
         android:layout_below="@+id/username_item"
-        android:layout_marginStart="-16dp"
+        android:layout_marginStart="-25dp"
         android:layout_marginTop="@dimen/_16sdp"
         android:layout_toEndOf="@+id/profile_image_item"
         android:src="@drawable/ic_profile"
@@ -42,7 +42,7 @@
         android:layout_width="@dimen/_17sdp"
         android:layout_height="@dimen/_17sdp"
         android:layout_below="@+id/username_item"
-        android:layout_marginStart="-16dp"
+        android:layout_marginStart="-25dp"
         android:layout_marginTop="@dimen/_16sdp"
         android:layout_toEndOf="@+id/profile_image_item"
         android:src="@drawable/ic_profile"
@@ -57,8 +57,8 @@
        android:layout_marginTop="@dimen/_14sdp"
         android:layout_marginStart="@dimen/_20sdp"
         android:layout_toEndOf="@+id/profile_image_item"
-        android:textColor="@color/colorPrimaryDark"
-        android:textSize="@dimen/_19ssp"
+        android:textColor="@android:color/white"
+        android:textSize="@dimen/_12ssp"
         android:padding="@dimen/_6sdp"
         android:maxLines="1"
         android:layout_below="@+id/username_item"

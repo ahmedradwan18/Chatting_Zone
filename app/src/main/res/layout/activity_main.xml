@@ -23,7 +23,6 @@
                 android:id="@+id/profile_image"
                 android:layout_width="@dimen/_32sdp"
                 android:layout_height="@dimen/_32sdp"
-                android:src="@drawable/ic_profile"
                 android:tint="@android:color/white"
 
                 />
@@ -33,7 +32,6 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginLeft="@dimen/_26sdp"
-                android:text="username"
                 android:textColor="@android:color/white"
                 android:textSize="@dimen/_18ssp"
                 android:textStyle="bold"
@@ -55,13 +53,19 @@
 
 
     </com.google.android.material.appbar.AppBarLayout>
+
     <androidx.viewpager.widget.ViewPager
+        android:id="@+id/view_pager"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-android:id="@+id/view_pager"
 
 
-        />
+    >
+
+
+
+
+    </androidx.viewpager.widget.ViewPager>
 
     <include layout="@layout/content_main" />
 

@@ -1,5 +1,6 @@
 package com.example.chattingzone
 
+import android.app.ProgressDialog
 import android.content.Intent
 import android.os.Bundle
 import android.view.Menu
@@ -28,12 +29,25 @@ class MainActivity : AppCompatActivity() {
     var ref: DatabaseReference? = null
     var currentUser: FirebaseUser? = null
 
+    var progressBar: ProgressDialog? = null
+    //private var progress: ProgressBar? = null
+
     var countUnreadMessages = 0
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
         setSupportActionBar(findViewById(R.id.toolbar_main))
 
+
+
+
+
+
+        progressBar = ProgressDialog(this)
+        progressBar!!.setCancelable(false)
+        progressBar!!.setMessage("Loading Your Account..")
+
+        progressBar!!.show()
         val toolbar: Toolbar = findViewById(R.id.toolbar_main)
         setSupportActionBar(toolbar)
         supportActionBar!!.title = ""
@@ -69,6 +83,9 @@ class MainActivity : AppCompatActivity() {
 
                     if (countUnreadMessages == 0) {
 
+                        progressBar!!.dismiss()
+
+
                         viewPagerAdapter.addFragment(ChatsFragment(), "Chats")
                         viewPagerAdapter.addFragment(SearchFragment(), "Search")
                         viewPagerAdapter.addFragment(SettingsFragment(), "Settings")
@@ -77,6 +94,8 @@ class MainActivity : AppCompatActivity() {
                         tabLayout.setupWithViewPager(viewPager)
                         Toast.makeText(this@MainActivity, "1", Toast.LENGTH_SHORT).show()
                     } else {
+                        progressBar!!.dismiss()
+
                         viewPagerAdapter.addFragment(
                             ChatsFragment(),
                             "($countUnreadMessages) Chats"
@@ -90,6 +109,8 @@ class MainActivity : AppCompatActivity() {
                     }
 
                 } else {
+                    progressBar!!.dismiss()
+
                     viewPagerAdapter.addFragment(ChatsFragment(), "Chats")
                     viewPagerAdapter.addFragment(SearchFragment(), "Search")
                     viewPagerAdapter.addFragment(SettingsFragment(), "Settings")
@@ -179,4 +200,22 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
+    private fun updateStatus(status: String) {
+        val ref = FirebaseDatabase.getInstance().reference.child("Users").child(currentUser!!.uid)
+        val hashmap = HashMap<String, Any?>()
+        hashmap["status"] = status
+        ref.updateChildren(hashmap)
+
+    }
+
+    override fun onResume() {
+        super.onResume()
+        updateStatus("online")
+    }
+
+    override fun onPause() {
+        super.onPause()
+        updateStatus("offline")
+
+    }
 }
